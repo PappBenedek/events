@@ -1,0 +1,93 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Events</title>
+</head>
+
+<body>
+    <input type="hidden" id="hfRowIndex" value="" />
+    <table class="table">
+        <tr style="display: none;">
+            <td>Id</td>
+            <td>
+                <input type="text" name="Id" id="txtId" value="1" />
+            </td>
+        </tr>
+    </table>
+    <table id="tblEvent" class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>View Products</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Service Fee</th>
+                <th>Add to Cart</th>
+            </tr>
+        </thead>
+        <tbody id="tblProduct">
+        </tbody>
+        <p>
+            <label>Cart total:</label>
+            <span id="price">0</span>
+        </p>
+    </table>
+    <script type="text/javascript">
+        let price = 0;
+        window.onload = (event) => {
+            fetch('http://localhost:5000/Event/').then(response => response.json()).then(data => {
+                for (let i = 0; i < data.length; i++) {
+                    let viewButton = `<a class='view' id=${i} href="#">View Products</a>`;
+                    
+                    let table = `<tr><td>${data[i].id}</td><td>${data[i].name}</td><td>${viewButton}</td></tr>`;
+                    document.querySelector('#tblEvent').innerHTML += table;
+                }
+            }).then(() => {
+                var viewButtons = document.querySelectorAll(".view");
+                viewButtons.forEach((btn) => {
+                    btn.addEventListener('click', (e) => {
+                        let eventId = parseInt(e.target.id) + parseInt(1);
+                        fetch(`http://localhost:5000/Product/?eventId=${eventId}`).then(response => response.json()).then(data => {
+                            document.querySelector("#tblProduct").innerHTML = '';
+                            for (let i = 0; i < data.length; i++) {
+                                let addToCartLink = "<a class='addToCart' href='#'>Add to Cart</a>";
+                                let table =`<tr><td>${data[i].id}</td><td>${data[i].name}</td><td></td><td>${data[i].serviceFee.amount}</td><td>${addToCartLink}</td></tr>`;
+                                document.querySelector('#tblProduct').innerHTML += table;
+                            }
+                        }).then(() => {
+                            var addToCarts = document.querySelectorAll('.addToCart');
+                            console.log(addToCarts);
+                            addToCarts.forEach((btn) => {
+                                console.log("clicked");
+                                btn.addEventListener('click', (e) => {
+                                    currentPrice = e.target.parentNode.parentNode.childNodes[3].childNodes[0].textContent * 1
+                                    price += currentPrice;
+                                    document.querySelector('#price').textContent = price;
+                                });
+                            })
+                        }).catch(function (err) {
+                                console.warn('Something went wrong.', err);
+                            });
+                    });
+                });
+
+
+            })
+        };
+
+
+
+
+    </script>
+</body>
+
+</html>
