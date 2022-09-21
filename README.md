@@ -19,7 +19,7 @@ Javascript
 docker, docker compose installed on your system
 
 ```bash
-git clone git@github.com:PappBenedek/events.git
+git clone https://github.com/PappBenedek/events.git
 cd events
 docker compose build
 docker compose up
